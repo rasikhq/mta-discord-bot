@@ -21,8 +21,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Init and Update submodules
-      run: git submodule update --recursive
+    - name: submodules-init
+      # You may pin to the exact commit or the version.
+      # uses: snickerbockers/submodules-init@74927a8bb0fe1bb0f1f1e4d102384a8e69f19171
+      uses: snickerbockers/submodules-init@v4
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -35,7 +37,8 @@ jobs:
       
     - name: Make
       # Make and link the project
-      run: make -C build .
+      working-directory: ${{github.workspace}}/build
+      run: make .
 
     - name: Test
       working-directory: ${{github.workspace}}/build
