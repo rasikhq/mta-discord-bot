@@ -3,7 +3,10 @@ Discord bot module for MTA. Does not require NodeJS setup or sockets module. You
 
 **Note:**
 - This module is still in development and may be incomplete, unstable, and/or broken. It can crash your MTA server, use at your own risk.
-- Only x64 (64-bit) is supported.
+- Only x64 (64-bit) is supported. I'll add support for 32-bit if I get the time.
+
+# Installation
+- Simply grab the DLL or SO file from Release and follow installation steps at the bottom of this doc
 
 # Build Guidelines
 ## Requirements
@@ -26,8 +29,13 @@ Discord bot module for MTA. Does not require NodeJS setup or sockets module. You
 - If build succeeded, you should have libDDiscord.so in build/bot/libDDiscord.so
 
 # Installing the module
+## 64-bit
 - Copy the built module (DDiscord.dll or libDDiscord.so depending on your operating system)
-- Paste it in *Your_mta_server/x64/modules/* (Create the folders if they don't exist)
+- Paste it in *YOUR_MTA_SERVER_DIRECTORY/x64/modules/* (Create the folders if they don't exist)
+
+## 32-bit
+- Copy the built module (DDiscord32.dll or libDDiscord32.so depending on your operating system)
+- Paste it in *YOUR_MTA_SERVER_DIRECTORY/mods/deathmatch/modules/* (Create the folders if they don't exist)
 
 # Loading the module
 - You have the following ways
@@ -37,11 +45,19 @@ Discord bot module for MTA. Does not require NodeJS setup or sockets module. You
 - You can see example code in the config to load modules on server start-up
 - Example: 
 ```xml
+<!-- 64-bit -->
 <module src="DDiscord.dll"/>
+
+<!-- 32-bit -->
+<module src="DDiscord32.dll"/>
 ```
 OR
 ```xml
+<!-- 64-bit -->
 <module src="libDDiscord.so"/>
+
+<!-- 32-bit -->
+<module src="libDDiscord32.so"/>
 ```
 
 ## Load from server console

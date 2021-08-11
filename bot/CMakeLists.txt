@@ -29,7 +29,11 @@ if(NOT WIN32)
 			module/luaimports/luaimports.linux.cpp
 	)
 else()
-	target_link_libraries(DDiscord ${PROJECT_SOURCE_DIR}/bot/module/lib/lua5.1_64.lib)
+	if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win32)")
+		target_link_libraries(DDiscord ${PROJECT_SOURCE_DIR}/bot/module/lib/lua5.1_64.lib)
+	else()
+		target_link_libraries(DDiscord ${PROJECT_SOURCE_DIR}/bot/module/lib/lua5.1.lib)
+	endif()
 endif()
 
 target_include_directories(DDiscord
