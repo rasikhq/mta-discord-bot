@@ -1,12 +1,12 @@
 # MTA Discord Module
-Discord bot module for MTA. Does not require NodeJS setup or sockets module. You just need to setup a bot on discord developer site and get the token.
+Discord bot module for MTA. This module lets you setup a mta discord bot that does not require NodeJS setup or sockets module. You just need to setup a bot on discord developer site and get the token.
 
 **Note:**
 - This module is still in development and may be incomplete, unstable, and/or broken. It can crash your MTA server, use at your own risk.
 - Only x64 (64-bit) is supported. I'll add support for 32-bit if I get the time.
 
 # Installation
-- Simply grab the DLL or SO file from Release and follow installation steps at the bottom of this doc
+- Simply grab the DLL or SO file from Release and follow installation steps from the "Installing the module" section at the bottom of this doc
 
 # Build Guidelines
 ## Requirements

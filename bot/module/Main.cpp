@@ -28,7 +28,7 @@ MTAEXPORT bool InitModule(ILuaModuleManager10* pManager, char* szModuleName, cha
     const auto author		= "DizzasTeR";
 	std::memcpy(szModuleName, module_name,	MAX_INFO_LENGTH);
 	std::memcpy(szAuthor,     author,		MAX_INFO_LENGTH);
-	*fVersion = 1.0f;
+	*fVersion = 1.1f;
 
     return true;
 }

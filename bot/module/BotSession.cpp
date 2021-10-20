@@ -22,7 +22,8 @@ std::mutex g_PulseMutex;
 
 	usertype["setPrefix"] = &BotSession::setPrefix;
 	usertype["sendMessage"] = &BotSession::sendMessage;
-	usertype["editMessage"] = &BotSession::editMessage;	
+	usertype["sendEmbed"] = &BotSession::sendEmbed;
+	usertype["editMessage"] = &BotSession::editMessage;
 	usertype["setActivity"] = &BotSession::setActivity;
 }
 
@@ -68,9 +69,13 @@ void BotSession::login(const std::string& token, sol::this_state s)
 
 	m_VM = s.lua_state();
 	m_Userdata = lua_newuserdata(m_VM, 128);
-	m_Bot = new Bot(token, m_VM, m_Userdata);
-
-	m_Thread = new std::thread(&BotSession::threadHandle, this);
+	try {
+		m_Bot = new Bot(token, m_VM, m_Userdata);
+		m_Thread = new std::thread(&BotSession::threadHandle, this);
+	}
+	catch (const std::bad_alloc& e) {
+		std::cout << "Failed to allocate heap (" << e.what() << ")\n";
+	}
 }
 
 void BotSession::disconnect()
@@ -92,7 +97,7 @@ void BotSession::disconnect()
 
 void BotSession::setPrefix(const std::string& newPrefix)
 {
-	if (!isReady())
+	if (!isConnected())
 		return;
 
 	m_Prefix = newPrefix; // This is for the operator() overload
@@ -114,10 +119,29 @@ void BotSession::sendMessage(const std::string& channelID, const std::string& me
 	}
 }
 
+void BotSession::sendEmbed(const std::string& channelID, const std::string& message)
+{
+	if (!isConnected())
+		return;
+
+	try
+	{
+		//nlohmann::json embedMessage(message);
+		SleepyDiscord::Embed embed(message);
+		if (!embed.empty())
+			m_Bot->sendMessage(channelID, "", embed);
+	}
+	catch (...) 
+	{
+		pModuleManager->ErrorPrintf("BotSession::sendMessage Failed!");
+	}
+}
+
 void BotSession::editMessage(const std::string& channelID, const std::string& messageID, const std::string& newMessage)
 {
 	if (!isConnected())
 		return;
+
 	try
 	{
 		m_Bot->editMessage(channelID, messageID, newMessage);
@@ -132,6 +156,7 @@ void BotSession::setActivity(const std::string& activity)
 {
 	if (!isConnected())
 		return;
+
 	try
 	{
 		m_Bot->updateStatus(activity);

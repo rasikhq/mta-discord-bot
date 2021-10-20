@@ -25,6 +25,7 @@ private:
 
 	void setPrefix(const std::string& newPrefix);
 	void sendMessage(const std::string& channelID, const std::string& message);
+	void sendEmbed(const std::string& channelID, const std::string& message);
 	void editMessage(const std::string& channelID, const std::string& messageID, const std::string& newMessage);
 	void setActivity(const std::string& activity);
 

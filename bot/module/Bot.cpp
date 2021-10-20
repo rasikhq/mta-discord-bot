@@ -6,8 +6,8 @@ Bot::Bot(const std::string& token, lua_State* vm, void* userdata)
 	: SleepyDiscord::DiscordClient(token)
 {
 	m_VM = vm;
-	m_State = new sol::state_view(m_VM);
 	m_Userdata = userdata;
+	m_State = new sol::state_view(m_VM);
 }
 
 Bot::~Bot()
@@ -17,17 +17,19 @@ Bot::~Bot()
 
 void Bot::onReady(SleepyDiscord::Ready readyResult)
 {
-	nlohmann::json o;
-	o["id"] = this->getID().string();
-	o["user"] = 
+	nlohmann::json responseObject;
+	responseObject["id"] = this->getID().string();
+	responseObject["user"] = 
 	{
 		{"id", readyResult.user.ID.string()},
 		{"username", readyResult.user.username}
 	};
 
 	try {
-		g_Pulses.push_back(new BotPulse(m_State, "onDiscordReady", o.dump()));
-		//TRIGGER_MTA_EVENT(m_State, "onDiscordReady", o.dump());
+		g_Pulses.push_back(new BotPulse(m_State, "onDiscordReady", responseObject.dump()));
+	}
+	catch (const std::bad_alloc& e) {
+		std::cout << "Failed to allocate heap (" << e.what() << ")\n";
 	}
 	catch (const nlohmann::json::exception& e) {
 		std::cerr << e.what() << '\n';
@@ -41,15 +43,15 @@ void Bot::onResumed()
 
 void Bot::onServer(SleepyDiscord::Server server)
 {
-	nlohmann::json o;
+	nlohmann::json responseObject;
 	std::stringstream ss;
-	o["server"] =
+	responseObject["server"] =
 	{
 		{"id", server.ID.string()},
 		{"name", server.name}
 	};
 
-	o["roles"] = {};
+	responseObject["roles"] = {};
 
 	auto& rolesList = server.roles;
 	for (auto& role : rolesList)
@@ -57,7 +59,7 @@ void Bot::onServer(SleepyDiscord::Server server)
 		ss.str(std::string());
 		ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << role.color;
 		
-		o["roles"].push_back
+		responseObject["roles"].push_back
 		({
 			{"id", role.ID.string()}, 
 			{"name", role.name},
@@ -66,8 +68,10 @@ void Bot::onServer(SleepyDiscord::Server server)
 	}
 
 	try {
-		g_Pulses.push_back(new BotPulse(m_State, "onDiscordServer", o.dump()));
-		//TRIGGER_MTA_EVENT(m_State, "onDiscordServer", o.dump());
+		g_Pulses.push_back(new BotPulse(m_State, "onDiscordServer", responseObject.dump()));
+	}
+	catch (const std::bad_alloc& e) {
+		std::cout << "Failed to allocate heap (" << e.what() << ")\n";
 	}
 	catch (const nlohmann::json::exception& e) {
 		std::cerr << e.what() << '\n';
@@ -80,26 +84,26 @@ void Bot::onMessage(SleepyDiscord::Message message)
 
 	if (message.startsWith(m_Prefix))
 	{
-		nlohmann::json o;
+		nlohmann::json responseObject;
 
 		const SleepyDiscord::ServerMember serverMember = getMember(message.serverID, message.author.ID);
 		const SleepyDiscord::Channel channel = getChannel(message.channelID);
 		auto& roles = serverMember.roles;
 
-		o["user"] = {};
+		responseObject["user"] = {};
 		nlohmann::json rolesObj = {};
 
 		for (auto& role : roles)
 			rolesObj[role.string()] = true;
 
-		o["message"] = 
+		responseObject["message"] = 
 		{
 			{"prefix", m_Prefix},
 			{"raw_content", message.content},
 			{"content", message.content.substr(m_Prefix.length())}
 		};
 		
-		o["message"]["author"] =
+		responseObject["message"]["author"] =
 		{
 			{"id", message.author.ID.string()},
 			{"username", message.author.username},
@@ -107,7 +111,7 @@ void Bot::onMessage(SleepyDiscord::Message message)
 			{"roles", rolesObj}
 		};
 
-		o["message"]["channel"] = 
+		responseObject["message"]["channel"] = 
 		{
 			{"id", channel.ID.string()},
 			{"name", channel.name},
@@ -116,16 +120,16 @@ void Bot::onMessage(SleepyDiscord::Message message)
 		};
 
 		try {
-			g_Pulses.push_back(new BotPulse(m_State, "onDiscordMessage", o.dump()));
-			//TRIGGER_MTA_EVENT(m_State, "onDiscordMessage", o.dump());
+			g_Pulses.push_back(new BotPulse(m_State, "onDiscordMessage", responseObject.dump()));
+		}
+		catch (const std::bad_alloc& e) {
+			std::cout << "Failed to allocate heap (" << e.what() << ")\n";
 		}
 		catch (const nlohmann::json::exception& e) {
 			std::cerr << e.what() << '\n';
 		}
 	}
 }
-
-
 
 void Bot::setPrefix(const std::string& newPrefix)
 {
